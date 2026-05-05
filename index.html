@@ -1,80 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Random Continuation Trainer</title>
-<style>
-body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    padding: 40px;
-    background: #f4f4f4;
-}
-button {
-    padding: 10px 20px;
-    margin: 10px;
-    font-size: 16px;
-}
-#fragment {
-    font-size: 24px;
-    margin: 20px;
-}
-#full {
-    margin-top: 20px;
-    font-size: 20px;
-    color: green;
-}
-</style>
-</head>
-<body>
-
-<h2>Random Continuation Trainer</h2>
-
-<button onclick="generateFragment()">Generate Fragment</button>
-<button onclick="showFullAyah()">Reveal Full Ayah</button>
-
-<div id="fragment"></div>
-<div id="full"></div>
-
-<script>
-
-// SAMPLE DATA (Replace later with full Qur'an dataset)
-const quran = [
-    { surah: 56, ayah: 1, text: "إِذَا وَقَعَتِ الْوَاقِعَةُ" },
-    { surah: 56, ayah: 2, text: "لَيْسَ لِوَقْعَتِهَا كَاذِبَةٌ" },
-    { surah: 2, ayah: 16, text: "أُولَٰئِكَ الَّذِينَ اشْتَرَوُا الضَّلَالَةَ بِالْهُدَىٰ فَمَا رَبِحَت تِّجَارَتُهُمْ" }
-];
-
-let currentAyah = null;
-
-function generateFragment() {
-    document.getElementById("full").innerText = "";
-    
-    // Pick random ayah
-    currentAyah = quran[Math.floor(Math.random() * quran.length)];
-    
-    const words = currentAyah.text.split(" ");
-    
-    if (words.length <= 3) {
-        document.getElementById("fragment").innerText = currentAyah.text;
-        return;
-    }
-    
-    const randomIndex = Math.floor(Math.random() * (words.length - 2));
-    
-    const fragment = words.slice(randomIndex, randomIndex + 3).join(" ");
-    
-    document.getElementById("fragment").innerText = fragment;
-}
-
-function showFullAyah() {
-    if (currentAyah) {
-        document.getElementById("full").innerText =
-            `Surah ${currentAyah.surah}, Ayah ${currentAyah.ayah}: ${currentAyah.text}`;
-    }
-}
-
-</script>
-
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NOVA English Academy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>
