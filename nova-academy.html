@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NOVA English Academy</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', 'Noto Sans Bengali', sans-serif;
+    background: linear-gradient(135deg, #0a0f1e 0%, #0d1a2e 100%);
+    min-height: 100vh;
+    color: #fff;
+  }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
+
+  @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes pulse  { 0%,100%{opacity:1} 50%{opacity:.3} }
+  @keyframes blink  { 0%,100%{transform:scale(1)} 50%{transform:scale(1.12)} }
+  .fade { animation: fadeIn .3s ease; }
+
+  header { text-align:center; padding:28px 16px 14px; border-bottom:1px solid rgba(255,255,255,.08); }
+  header h1 { font-size:26px; font-weight:700; color:#f9a826; letter-spacing:.5px; }
+  header p  { color:#888; font-size:13px; margin-top:6px; }
+
+  nav { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; padding:12px 16px; }
+  nav button {
+    padding:8px 18px; border-radius:24px; border:1px solid rgba(255,255,255,.12);
+    background:rgba(255,255,255,.06); color:#fff; font-size:14px; font-weight:600;
+    cursor:pointer; transition:all .2s; font-family:inherit;
+  }
+  nav button.active { background:#f9a826; border-color:#f9a826; color:#0a0f1e; }
+
+  main { max-width:720px; margin:0 auto; padding:20px 16px 60px; }
+  .panel { display:none; } .panel.active { display:block; }
+
+  h2 { color:#f9a826; margin-bottom:18px; font-size:20px; }
+
+  .card {
+    background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1);
+    border-radius:16px; padding:20px;
+  }
+  .card + .card { margin-top:12px; }
+
+  /* Lesson grid */
+  .lesson-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(185px,1fr)); gap:14px; }
+  .lesson-btn {
+    background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1);
+    border-radius:18px; padding:20px 14px; cursor:pointer; color:#fff;
+    text-align:center; transition:border-color .2s; font-family:inherit;
+    width:100%;
+  }
+  .lesson-btn:hover { border-color:#00c9a7; }
+  .lesson-btn .emoji { font-size:32px; }
+  .lesson-btn .title { font-weight:700; font-size:15px; margin-top:8px; }
+  .lesson-btn .bn    { color:#888; font-size:13px; margin-top:4px; }
+  .lesson-btn .count { color:#00c9a7; font-size:12px; margin-top:8px; }
+
+  .back-btn {
+    background:none; border:none; color:#00c9a7; cursor:pointer;
+    font-size:15px; margin-bottom:16px; font-family:inherit; padding:0;
+  }
+
+  .phrase-card {
+    background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1);
+    border-radius:14px; padding:18px 20px; cursor:pointer;
+    transition:border-color .2s; margin-bottom:10px;
+  }
+  .phrase-card:hover { border-color:rgba(249,168,38,.4); }
+  .phrase-card.open  { border-color:#f9a826; }
+  .phrase-card .en   { font-size:16px; font-weight:600; }
+  .phrase-card .hint { color:#888; font-size:13px; margin-top:6px; }
+  .phrase-card .bn-reveal {
+    margin-top:10px; padding:10px 14px;
+    background:rgba(249,168,38,.1); border-radius:10px;
+    color:#f9a826; font-size:16px;
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;
+    animation:fadeIn .25s ease;
+  }
+  .speak-btn {
+    background:none; border:1px solid #f9a826; border-radius:20px;
+    padding:3px 12px; color:#f9a826; cursor:pointer; font-size:13px; font-family:inherit;
+  }
+
+  /* Practice */
+  .streak-badge { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); border-radius:20px; padding:4px 14px; font-size:14px; }
+  .hint-label   { color:#888; font-size:13px; margin-bottom:6px; }
+  .bn-hint      { color:#00c9a7; font-size:18px; margin-bottom:18px; }
+  .blank-text   { font-size:20px; font-weight:600; margin-bottom:18px; }
+  input[type=text] {
+    width:100%; padding:12px 16px; border-radius:12px;
+    border:1px solid rgba(255,255,255,.15); background:rgba(255,255,255,.07);
+    color:#fff; font-size:16px; outline:none; font-family:inherit;
+    transition:border-color .2s;
+  }
+  input[type=text]:focus { border-color:#4f8ef7; }
+  input.correct { border-color:#00c9a7; }
+  input.wrong   { border-color:#ff6b6b; }
+  .result-box { margin-top:14px; padding:12px 16px; border-radius:12px; font-weight:600; animation:fadeIn .25s ease; }
+  .result-box.correct { background:rgba(0,201,167,.13); color:#00c9a7; }
+  .result-box.wrong   { background:rgba(255,107,107,.13); color:#ff6b6b; }
+
+  .btn {
+    display:block; width:100%; padding:13px; border-radius:13px; border:none;
+    font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; transition:opacity .2s;
+  }
+  .btn:disabled { opacity:.5; cursor:default; }
+  .btn-blue   { background:#4f8ef7; color:#fff; }
+  .btn-gold   { background:#f9a826; color:#0a0f1e; }
+  .btn-ghost  { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); color:#fff; }
+
+  /* Quiz */
+  .score-row  { display:flex; gap:8px; }
+  .quiz-q     { font-size:22px; color:#00c9a7; margin-bottom:4px; }
+  .quiz-label { color:#888; font-size:13px; margin-bottom:10px; }
+  .opt-btn {
+    display:block; width:100%; padding:14px 18px; border-radius:14px;
+    border:1px solid rgba(255,255,255,.1); background:rgba(255,255,255,.06);
+    color:#fff; text-align:left; font-size:15px; cursor:pointer;
+    font-family:inherit; transition:all .15s; margin-bottom:10px;
+  }
+  .opt-btn:disabled { cursor:default; }
+  .opt-btn.correct  { border-color:#00c9a7; background:rgba(0,201,167,.11); font-weight:700; }
+  .opt-btn.wrong    { border-color:#ff6b6b; background:rgba(255,107,107,.11); }
+
+  /* Tutor */
+  .chat-box {
+    height:400px; overflow-y:auto; background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.1); border-radius:16px;
+    padding:16px; margin-bottom:12px;
+    display:flex; flex-direction:column; gap:12px;
+  }
+  .bubble { max-width:83%; padding:12px 16px; border-radius:18px; font-size:15px; line-height:1.65; white-space:pre-wrap; animation:fadeIn .25s ease; }
+  .bubble.user      { align-self:flex-end; background:#4f8ef7; border-radius:18px 18px 4px 18px; }
+  .bubble.assistant { align-self:flex-start; background:rgba(255,255,255,.1); border-radius:18px 18px 18px 4px; }
+  .typing-dots { display:flex; gap:5px; padding:8px 14px; align-self:flex-start; }
+  .dot { width:8px; height:8px; border-radius:50%; background:#888; }
+  .dot:nth-child(1) { animation:pulse 1.2s .0s infinite; }
+  .dot:nth-child(2) { animation:pulse 1.2s .2s infinite; }
+  .dot:nth-child(3) { animation:pulse 1.2s .4s infinite; }
+  .chat-row { display:flex; gap:10px; }
+  .chat-row input { flex:1; }
+  .send-btn { padding:12px 20px; border-radius:12px; border:none; background:#f9a826; color:#0a0f1e; font-weight:700; font-size:15px; cursor:pointer; font-family:inherit; }
+  .send-btn:disabled { opacity:.5; cursor:default; }
+  .api-row  { margin-bottom:12px; }
+  .api-row label { color:#888; font-size:12px; display:block; margin-bottom:5px; }
+
+  /* Speak */
+  .speak-phrase { font-size:22px; font-weight:700; margin-bottom:10px; }
+  .speak-bn     { color:#00c9a7; font-size:16px; margin-bottom:18px; }
+  .transcript-box { background:rgba(79,142,247,.1); border:1px solid rgba(79,142,247,.3); border-radius:14px; padding:12px 18px; margin-bottom:14px; animation:fadeIn .25s ease; }
+  .feedback-box { border-radius:14px; padding:14px 18px; margin-bottom:18px; font-weight:600; white-space:pre-line; animation:fadeIn .25s ease; }
+  .feedback-box.great { background:rgba(0,201,167,.12); border:1px solid rgba(0,201,167,.3); color:#00c9a7; }
+  .feedback-box.ok    { background:rgba(249,168,38,.12); border:1px solid rgba(249,168,38,.3); color:#f9a826; }
+  .feedback-box.retry { background:rgba(255,107,107,.12); border:1px solid rgba(255,107,107,.3); color:#ff6b6b; }
+  .mic-btn {
+    flex:1; min-width:150px; padding:13px; border-radius:13px; border:none;
+    background:#00c9a7; color:#fff; font-size:15px; font-weight:700;
+    cursor:pointer; font-family:inherit; transition:background .2s;
+  }
+  .mic-btn.listening { background:#ff6b6b; animation:blink 1s ease-in-out infinite; }
+  .speak-row { display:flex; gap:12px; flex-wrap:wrap; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🌟 NOVA English Academy</h1>
+  <p>ইংরেজি শেখার সেরা সঙ্গী · Your English Learning Companion</p>
+</header>
+
+<nav>
+  <button class="active" onclick="showTab('learn')">📚 Learn</button>
+  <button onclick="showTab('practice')">✏️ Practice</button>
+  <button onclick="showTab('tutor')">🤖 AI Tutor</button>
+  <button onclick="showTab('quiz')">🧠 Quiz</button>
+  <button onclick="showTab('speak')">🎤 Speak</button>
+</nav>
+
+<main>
+
+  <!-- ── LEARN ── -->
+  <div id="panel-learn" class="panel active">
+    <div id="lesson-list">
+      <h2>📚 Choose a Lesson</h2>
+      <div class="lesson-grid" id="lesson-grid"></div>
+    </div>
+    <div id="lesson-detail" style="display:none">
+      <button class="back-btn" onclick="closeLesson()">← Back to lessons</button>
+      <h2 id="detail-title"></h2>
+      <p style="color:#888;font-size:13px;margin-bottom:18px" id="detail-sub"></p>
+      <div id="phrase-list"></div>
+    </div>
+  </div>
+
+  <!-- ── PRACTICE ── -->
+  <div id="panel-practice" class="panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:22px">
+      <h2 style="margin:0">✏️ Fill in the Blank</h2>
+      <div class="streak-badge">🔥 <span id="streak">0</span></div>
+    </div>
+    <div class="card">
+      <p class="hint-label">🇧🇩 Bengali hint:</p>
+      <p class="bn-hint" id="prac-bn"></p>
+      <p class="hint-label">🇺🇸 Complete the sentence:</p>
+      <p class="blank-text" id="prac-blank"></p>
+      <input type="text" id="prac-input" placeholder="Type the missing word…" onkeydown="if(event.key==='Enter')checkAnswer()" />
+      <div id="prac-result" style="display:none" class="result-box"></div>
+    </div>
+    <br>
+    <button class="btn btn-blue" id="prac-check-btn" onclick="checkAnswer()">Check Answer</button>
+    <button class="btn btn-gold" id="prac-next-btn" onclick="nextPractice()" style="display:none;margin-top:10px">Next Question →</button>
+  </div>
+
+  <!-- ── AI TUTOR ── -->
+  <div id="panel-tutor" class="panel">
+    <h2>🤖 AI Tutor — Nova</h2>
+    <div class="api-row">
+      <label>Anthropic API Key (saved in browser, never shared)</label>
+      <input type="text" id="api-key-input" placeholder="sk-ant-…" oninput="saveKey()" style="font-size:13px;padding:8px 12px" />
+    </div>
+    <div class="chat-box" id="chat-box"></div>
+    <div class="chat-row">
+      <input type="text" id="chat-input" placeholder="Ask Nova anything in Bengali or English…" onkeydown="if(event.key==='Enter')sendMessage()" />
+      <button class="send-btn" id="send-btn" onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <!-- ── QUIZ ── -->
+  <div id="panel-quiz" class="panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:22px">
+      <h2 style="margin:0">🧠 Quiz</h2>
+      <div class="score-row">
+        <div class="streak-badge"><span id="quiz-score">0</span>/<span id="quiz-total">0</span></div>
+        <div class="streak-badge" style="border-color:rgba(249,168,38,.4);color:#f9a826">🏆 <span id="quiz-best">0</span></div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:18px">
+      <p class="quiz-label">What does this mean in English?</p>
+      <p class="quiz-q" id="quiz-q"></p>
+    </div>
+    <div id="quiz-opts"></div>
+    <button class="btn btn-gold" id="quiz-next-btn" onclick="nextQuiz()" style="display:none;margin-top:6px">Next Question →</button>
+  </div>
+
+  <!-- ── SPEAK ── -->
+  <div id="panel-speak" class="panel">
+    <h2>🎤 Speak & Practice</h2>
+    <p style="color:#888;font-size:13px;margin-bottom:22px">🇧🇩 শুনুন, তারপর বলুন · 🇺🇸 Listen, then say the phrase aloud</p>
+    <div class="card" style="text-align:center;margin-bottom:18px">
+      <p style="color:#888;font-size:13px;margin-bottom:10px">Say this phrase:</p>
+      <p class="speak-phrase" id="speak-en"></p>
+      <p class="speak-bn" id="speak-bn"></p>
+      <button class="speak-btn" onclick="playPhrase()">🔊 Hear Example</button>
+    </div>
+    <div id="speak-transcript" style="display:none" class="transcript-box"></div>
+    <div id="speak-feedback" style="display:none" class="feedback-box"></div>
+    <div class="speak-row">
+      <button class="mic-btn" id="mic-btn" onclick="toggleMic()">🎤 Start Speaking</button>
+      <button class="btn btn-ghost" style="width:auto;padding:13px 18px" onclick="nextSpeakPhrase()">Next Phrase →</button>
+    </div>
+    <div id="speak-no-support" style="display:none;text-align:center;padding:32px;color:#ff6b6b">
+      😔 Your browser doesn't support speech recognition.<br>
+      <span style="color:#888;font-size:13px">Please use Google Chrome.</span>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ── DATA ────────────────────────────────────────────────────────
+const LESSONS = [
+  { id:'greetings', title:'Greetings & Small Talk', emoji:'👋', bengali:'অভিবাদন ও ছোট কথোপকথন', phrases:[
+    { en:"Hi, how are you doing?",       bn:"হ্যালো, আপনি কেমন আছেন?" },
+    { en:"Nice to meet you!",            bn:"আপনার সাথে পরিচিত হয়ে ভালো লাগলো!" },
+    { en:"Have a great day!",            bn:"আপনার দিনটি সুন্দর হোক!" },
+    { en:"What's up?",                   bn:"কী খবর?" },
+    { en:"See you later!",               bn:"পরে দেখা হবে!" },
+    { en:"Take care!",                   bn:"ভালো থাকবেন!" },
+  ]},
+  { id:'university', title:'At the University', emoji:'🎓', bengali:'বিশ্ববিদ্যালয়ে', phrases:[
+    { en:"Where is the financial aid office?",         bn:"ফিনান্সিয়াল এইড অফিস কোথায়?" },
+    { en:"Can I get an extension on this assignment?", bn:"এই অ্যাসাইনমেন্টের সময়সীমা বাড়ানো যাবে?" },
+    { en:"I'd like to drop this class.",               bn:"আমি এই ক্লাসটি ছেড়ে দিতে চাই।" },
+    { en:"What are your office hours?",                bn:"আপনার অফিস আওয়ার কখন?" },
+    { en:"Is this course required for my major?",      bn:"এই কোর্সটি কি আমার মেজরের জন্য প্রয়োজনীয়?" },
+    { en:"I need to register for next semester.",      bn:"আমাকে পরের সেমিস্টারের জন্য রেজিস্ট্রেশন করতে হবে।" },
+  ]},
+  { id:'shopping', title:'Shopping', emoji:'🛍️', bengali:'কেনাকাটা', phrases:[
+    { en:"Do you have this in a different size?", bn:"এটি কি অন্য সাইজে আছে?" },
+    { en:"Where are the fitting rooms?",          bn:"ফিটিং রুম কোথায়?" },
+    { en:"I'd like to return this item.",         bn:"আমি এই জিনিসটি ফেরত দিতে চাই।" },
+    { en:"Do you accept coupons?",                bn:"আপনারা কি কুপন গ্রহণ করেন?" },
+    { en:"Is this on sale?",                      bn:"এটি কি সেলে আছে?" },
+    { en:"Can I pay with a credit card?",         bn:"আমি কি ক্রেডিট কার্ডে পেমেন্ট করতে পারি?" },
+  ]},
+  { id:'doctor', title:'At the Doctor', emoji:'🏥', bengali:'ডাক্তারের কাছে', phrases:[
+    { en:"I need to make an appointment.",           bn:"আমাকে একটি অ্যাপয়েন্টমেন্ট নিতে হবে।" },
+    { en:"I've been feeling unwell for a few days.", bn:"আমি কয়েকদিন ধরে অসুস্থ বোধ করছি।" },
+    { en:"Do you take my insurance?",               bn:"আপনারা কি আমার ইন্স্যুরেন্স নেন?" },
+    { en:"Can you refill my prescription?",         bn:"আপনি কি আমার প্রেসক্রিপশন রিফিল করতে পারবেন?" },
+    { en:"I am allergic to penicillin.",            bn:"আমার পেনিসিলিনে অ্যালার্জি আছে।" },
+    { en:"When should I take this medication?",     bn:"আমি কখন এই ওষুধ খাব?" },
+  ]},
+  { id:'idioms', title:'American Idioms', emoji:'🗣️', bengali:'আমেরিকান বাগধারা', phrases:[
+    { en:"It's raining cats and dogs.",      bn:"প্রচণ্ড বৃষ্টি হচ্ছে।" },
+    { en:"Break a leg!",                     bn:"শুভকামনা! (পরীক্ষায় ভালো করুন!)" },
+    { en:"Hit the books.",                   bn:"পড়াশোনায় মন দাও।" },
+    { en:"Under the weather.",               bn:"একটু অসুস্থ।" },
+    { en:"Bite off more than you can chew.", bn:"সামর্থ্যের বাইরে কাজ নেওয়া।" },
+    { en:"Piece of cake.",                   bn:"খুব সহজ কাজ।" },
+  ]},
+  { id:'dining', title:'Eating Out', emoji:'🍽️', bengali:'রেস্তোরাঁয় খাওয়া', phrases:[
+    { en:"Table for two, please.", bn:"দুই জনের জন্য টেবিল দিন, দয়া করে।" },
+    { en:"Can I see the menu?",    bn:"আমি কি মেনুটা দেখতে পারি?" },
+    { en:"I have a food allergy.", bn:"আমার খাবারে অ্যালার্জি আছে।" },
+    { en:"Can I get this to go?",  bn:"এটি কি নিয়ে যেতে পারি?" },
+    { en:"The check, please.",     bn:"বিল দিন, দয়া করে।" },
+    { en:"Is the tip included?",   bn:"টিপ কি অন্তর্ভুক্ত?" },
+  ]},
+];
+
+const ALL = LESSONS.flatMap(l => l.phrases);
+
+const SYSTEM = `You are Nova, a warm and patient bilingual tutor helping a Bengali-speaking woman at NOVA Community College in Northern Virginia.
+ALWAYS respond in BOTH Bengali and English:
+🇧🇩 [Bengali]
+🇺🇸 [English]
+Be encouraging, correct gently, give practical American life examples.`;
+
+// ── TAB SWITCHING ────────────────────────────────────────────────
+function showTab(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if (name === 'practice') initPractice();
+  if (name === 'quiz')     initQuiz();
+  if (name === 'speak')    initSpeak();
+  if (name === 'tutor')    initTutor();
+}
+
+// ── LEARN ────────────────────────────────────────────────────────
+const grid = document.getElementById('lesson-grid');
+LESSONS.forEach(l => {
+  const btn = document.createElement('button');
+  btn.className = 'lesson-btn';
+  btn.innerHTML = `<div class="emoji">${l.emoji}</div><div class="title">${l.title}</div><div class="bn">${l.bengali}</div><div class="count">${l.phrases.length} phrases</div>`;
+  btn.onclick = () => openLesson(l);
+  grid.appendChild(btn);
+});
+
+function openLesson(l) {
+  document.getElementById('lesson-list').style.display = 'none';
+  document.getElementById('lesson-detail').style.display = 'block';
+  document.getElementById('detail-title').textContent = l.emoji + ' ' + l.title;
+  document.getElementById('detail-sub').textContent = l.bengali + ' · Tap a card to reveal Bengali';
+  const list = document.getElementById('phrase-list');
+  list.innerHTML = '';
+  l.phrases.forEach((p, i) => {
+    const card = document.createElement('div');
+    card.className = 'phrase-card fade';
+    card.innerHTML = `<div class="en">${p.en}</div><div class="hint">Tap to reveal Bengali 👆</div>`;
+    card.onclick = () => {
+      if (card.classList.contains('open')) {
+        card.classList.remove('open');
+        card.querySelector('.hint').style.display = '';
+        const rev = card.querySelector('.bn-reveal');
+        if (rev) rev.remove();
+      } else {
+        card.classList.add('open');
+        card.querySelector('.hint').style.display = 'none';
+        const rev = document.createElement('div');
+        rev.className = 'bn-reveal';
+        rev.innerHTML = `<span>${p.bn}</span><button class="speak-btn" onclick="event.stopPropagation();speakText('${p.en.replace(/'/g,"\\'")}')">🔊 Listen</button>`;
+        card.appendChild(rev);
+      }
+    };
+    list.appendChild(card);
+  });
+}
+
+function closeLesson() {
+  document.getElementById('lesson-list').style.display = '';
+  document.getElementById('lesson-detail').style.display = 'none';
+}
+
+function speakText(text) {
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'en-US'; u.rate = 0.9;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(u);
+}
+
+// ── PRACTICE ────────────────────────────────────────────────────
+let pracQ, streak = 0;
+
+function makeBlank() {
+  const p = ALL[Math.floor(Math.random() * ALL.length)];
+  const words = p.en.split(' ');
+  const cands = words.map((w,i)=>({w,i})).filter(({w})=>w.replace(/[^a-zA-Z]/g,'').length>=4);
+  const t = cands.length ? cands[Math.floor(Math.random()*cands.length)] : {w:words[1]||words[0],i:1};
+  return { phrase:p, blanked:words.map((w,i)=>i===t.i?'_____':w).join(' '), answer:t.w.replace(/[^a-zA-Z']/g,'') };
+}
+
+function initPractice() {
+  pracQ = makeBlank();
+  document.getElementById('prac-bn').textContent    = pracQ.phrase.bn;
+  document.getElementById('prac-blank').textContent = pracQ.blanked;
+  const inp = document.getElementById('prac-input');
+  inp.value = ''; inp.className = ''; inp.disabled = false;
+  document.getElementById('prac-result').style.display = 'none';
+  document.getElementById('prac-check-btn').style.display = '';
+  document.getElementById('prac-next-btn').style.display  = 'none';
+}
+
+function checkAnswer() {
+  const inp = document.getElementById('prac-input');
+  if (!inp.value.trim() || inp.disabled) return;
+  const ok = inp.value.trim().toLowerCase().replace(/[^a-z']/g,'') === pracQ.answer.toLowerCase();
+  inp.disabled = true;
+  inp.classList.add(ok ? 'correct' : 'wrong');
+  const res = document.getElementById('prac-result');
+  res.style.display = '';
+  res.className = 'result-box ' + (ok ? 'correct' : 'wrong');
+  res.textContent = ok ? '✅ সঠিক! Correct!' : `❌ The answer was: "${pracQ.answer}"`;
+  streak = ok ? streak + 1 : 0;
+  document.getElementById('streak').textContent = streak;
+  document.getElementById('prac-check-btn').style.display = 'none';
+  document.getElementById('prac-next-btn').style.display  = '';
+}
+
+function nextPractice() { initPractice(); }
+
+// ── AI TUTOR ────────────────────────────────────────────────────
+let chatHistory = [];
+
+function initTutor() {
+  const saved = localStorage.getItem('novaApiKey') || '';
+  document.getElementById('api-key-input').value = saved;
+  if (!chatHistory.length) {
+    chatHistory = [];
+    const box = document.getElementById('chat-box');
+    box.innerHTML = '';
+    addBubble('assistant', '🇧🇩 আস্সালামু আলাইকুম! আমি নোভা, আপনার ইংরেজি শিক্ষক। আজ কী শিখতে চান?\n\n🇺🇸 Hello! I\'m Nova, your English tutor. What would you like to practice today?');
+  }
+}
+
+function saveKey() {
+  localStorage.setItem('novaApiKey', document.getElementById('api-key-input').value.trim());
+}
+
+function addBubble(role, text) {
+  const box = document.getElementById('chat-box');
+  const div = document.createElement('div');
+  div.className = 'bubble ' + role;
+  div.textContent = text;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+async function sendMessage() {
+  const inp = document.getElementById('chat-input');
+  const text = inp.value.trim();
+  if (!text) return;
+  const key = document.getElementById('api-key-input').value.trim();
+  if (!key) { addBubble('assistant', '🇧🇩 অনুগ্রহ করে উপরে API Key দিন।\n🇺🇸 Please enter your Anthropic API key above to chat.'); return; }
+  inp.value = '';
+  addBubble('user', text);
+  chatHistory.push({ role:'user', content:text });
+
+  // typing dots
+  const box = document.getElementById('chat-box');
+  const dots = document.createElement('div');
+  dots.className = 'typing-dots';
+  dots.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+  box.appendChild(dots);
+  box.scrollTop = box.scrollHeight;
+
+  document.getElementById('send-btn').disabled = true;
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key': key,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-allow-browser':'true',
+      },
+      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1000, system:SYSTEM, messages:chatHistory }),
+    });
+    const data = await res.json();
+    const reply = data.content?.[0]?.text || '(no response)';
+    chatHistory.push({ role:'assistant', content:reply });
+    dots.remove();
+    addBubble('assistant', reply);
+  } catch(e) {
+    dots.remove();
+    addBubble('assistant', '🇧🇩 দুঃখিত, সমস্যা হয়েছে।\n🇺🇸 Sorry, something went wrong. Check your API key.');
+  }
+  document.getElementById('send-btn').disabled = false;
+}
+
+// ── QUIZ ────────────────────────────────────────────────────────
+let qScore=0, qTotal=0, qBest=parseInt(localStorage.getItem('novaQuizBest')||'0');
+let currentQ;
+
+function initQuiz() {
+  document.getElementById('quiz-best').textContent = qBest;
+  nextQuiz();
+}
+
+function nextQuiz() {
+  const correct = ALL[Math.floor(Math.random()*ALL.length)];
+  const opts = [correct, ...ALL.filter(p=>p!==correct).sort(()=>Math.random()-.5).slice(0,3)].sort(()=>Math.random()-.5);
+  currentQ = { correct, opts };
+  document.getElementById('quiz-q').textContent = correct.bn;
+  document.getElementById('quiz-next-btn').style.display = 'none';
+  const container = document.getElementById('quiz-opts');
+  container.innerHTML = '';
+  opts.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.textContent = opt.en;
+    btn.onclick = () => pickOpt(opt, btn);
+    container.appendChild(btn);
+  });
+}
+
+function pickOpt(opt, btn) {
+  if (!currentQ) return;
+  document.querySelectorAll('.opt-btn').forEach(b => b.disabled = true);
+  const isCorrect = opt === currentQ.correct;
+  qTotal++;
+  if (isCorrect) {
+    qScore++;
+    if (qScore > qBest) { qBest = qScore; localStorage.setItem('novaQuizBest', qBest); }
+    btn.classList.add('correct');
+    btn.textContent += ' ✅';
+  } else {
+    btn.classList.add('wrong');
+    btn.textContent += ' ❌';
+    document.querySelectorAll('.opt-btn').forEach(b => {
+      if (b.textContent.replace(' ❌','').replace(' ✅','') === currentQ.correct.en) { b.classList.add('correct'); b.textContent += ' ✅'; }
+    });
+  }
+  document.getElementById('quiz-score').textContent = qScore;
+  document.getElementById('quiz-total').textContent = qTotal;
+  document.getElementById('quiz-best').textContent  = qBest;
+  document.getElementById('quiz-next-btn').style.display = '';
+}
+
+// ── SPEAK ────────────────────────────────────────────────────────
+let currentPhrase, recognition, isListening = false;
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+function initSpeak() {
+  if (!SR) { document.getElementById('speak-no-support').style.display = ''; document.querySelector('.speak-row').style.display='none'; return; }
+  nextSpeakPhrase();
+}
+
+function nextSpeakPhrase() {
+  currentPhrase = ALL[Math.floor(Math.random()*ALL.length)];
+  document.getElementById('speak-en').textContent = currentPhrase.en;
+  document.getElementById('speak-bn').textContent = currentPhrase.bn;
+  document.getElementById('speak-transcript').style.display = 'none';
+  document.getElementById('speak-feedback').style.display   = 'none';
+}
+
+function playPhrase() { speakText(currentPhrase.en); }
+
+function toggleMic() {
+  if (isListening) { recognition && recognition.stop(); return; }
+  recognition = new SR();
+  recognition.lang = 'en-US';
+  recognition.interimResults = false;
+  recognition.onresult = e => {
+    const said = e.results[0][0].transcript;
+    const tBox = document.getElementById('speak-transcript');
+    tBox.style.display = '';
+    tBox.innerHTML = `<span style="color:#888;font-size:12px">You said: </span>"${said}"`;
+    evaluateSpoken(said);
+  };
+  recognition.onerror = e => {
+    setListening(false);
+    const fb = document.getElementById('speak-feedback');
+    fb.style.display=''; fb.className='feedback-box retry';
+    fb.textContent = e.error==='not-allowed'
+      ? '🇧🇩 মাইক্রোফোনের অনুমতি দিন।\n🇺🇸 Please allow microphone access.'
+      : `🇺🇸 Error: ${e.error}`;
+  };
+  recognition.onend = () => setListening(false);
+  recognition.start();
+  setListening(true);
+  document.getElementById('speak-transcript').style.display='none';
+  document.getElementById('speak-feedback').style.display='none';
+}
+
+function setListening(val) {
+  isListening = val;
+  const btn = document.getElementById('mic-btn');
+  btn.textContent = val ? '🔴 Listening…' : '🎤 Start Speaking';
+  btn.classList.toggle('listening', val);
+}
+
+function evaluateSpoken(said) {
+  const norm = s => s.toLowerCase().replace(/[^a-z0-9 ]/g,'').trim();
+  const tw = norm(currentPhrase.en).split(' ');
+  const sw = norm(said).split(' ');
+  const pct = tw.filter(w=>sw.includes(w)).length / tw.length;
+  const fb = document.getElementById('speak-feedback');
+  fb.style.display = '';
+  if (pct >= 0.85) { fb.className='feedback-box great'; fb.textContent='🇧🇩 চমৎকার! উচ্চারণ খুব ভালো!\n🇺🇸 Excellent! Great pronunciation!'; }
+  else if (pct >= 0.5) { fb.className='feedback-box ok'; fb.textContent='🇧🇩 ভালো চেষ্টা! আরেকবার করুন।\n🇺🇸 Good try! Practice a bit more.'; }
+  else { fb.className='feedback-box retry'; fb.textContent='🇧🇩 আবার চেষ্টা করুন।\n🇺🇸 Try again — listen carefully and repeat.'; }
+}
+</script>
+</body>
+</html>
