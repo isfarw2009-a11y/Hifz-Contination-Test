@@ -246,6 +246,11 @@ body::before{content:'';position:fixed;inset:0;background:
     <!-- ── LEARN ── -->
     <div id="panel-learn" class="panel active">
       <div id="learn-home">
+        <!-- Freeze Phrases panic card -->
+        <div style="background:linear-gradient(135deg,rgba(255,107,107,.18),rgba(249,168,38,.12));border:1px solid rgba(255,107,107,.35);border-radius:18px;padding:16px 18px;margin-bottom:18px;">
+          <div style="font-size:11px;font-weight:700;color:#ff6b6b;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">🆘 Mind Gone Blank? Say This!</div>
+          <div id="freeze-list" style="display:flex;flex-direction:column;gap:7px;"></div>
+        </div>
         <div class="sec-hd"><h2>📚 Lessons</h2></div>
         <div class="lesson-grid" id="lesson-grid"></div>
       </div>
@@ -370,10 +375,10 @@ body::before{content:'';position:fixed;inset:0;background:
 
   <nav class="bottom-nav">
     <button class="nav-item active" onclick="showTab('learn',this)"><div class="nav-icon">📚</div><div class="nav-label">Learn</div></button>
-    <button class="nav-item" onclick="showTab('practice',this)"><div class="nav-icon">✏️</div><div class="nav-label">Practice</div></button>
-    <button class="nav-item" onclick="showTab('tutor',this)"><div class="nav-icon">🤖</div><div class="nav-label">Tutor</div></button>
-    <button class="nav-item" onclick="showTab('quiz',this)"><div class="nav-icon">🧠</div><div class="nav-label">Quiz</div></button>
     <button class="nav-item" onclick="showTab('speak',this)"><div class="nav-icon">🎤</div><div class="nav-label">Speak</div></button>
+    <button class="nav-item" onclick="showTab('tutor',this)"><div class="nav-icon">🤖</div><div class="nav-label">Tutor</div></button>
+    <button class="nav-item" onclick="showTab('practice',this)"><div class="nav-icon">✏️</div><div class="nav-label">Practice</div></button>
+    <button class="nav-item" onclick="showTab('quiz',this)"><div class="nav-icon">🧠</div><div class="nav-label">Quiz</div></button>
   </nav>
 </div><!-- /app -->
 
@@ -428,15 +433,78 @@ const LESSONS=[
     {en:"The check, please.",bn:"বিল দিন, দয়া করে।"},
     {en:"Is the tip included?",bn:"টিপ কি অন্তর্ভুক্ত?"},
   ]},
+  {id:'office-hours',title:'Office Hours',emoji:'🧑‍🏫',bengali:'অধ্যাপকের সাথে কথা',phrases:[
+    {en:"Professor, do you have a few minutes?",bn:"স্যার/ম্যাম, আপনার কি একটু সময় আছে?"},
+    {en:"I'm struggling with the assignment.",bn:"আমি অ্যাসাইনমেন্টটি নিয়ে একটু সমস্যায় পড়েছি।"},
+    {en:"Could you explain that again, please?",bn:"আপনি কি এটা আবার একটু বুঝিয়ে দিতে পারবেন?"},
+    {en:"I'm sorry, I don't quite understand.",bn:"আমি দুঃখিত, আমি পুরোপুরি বুঝতে পারিনি।"},
+    {en:"What will be on the exam?",bn:"পরীক্ষায় কী কী আসবে?"},
+    {en:"Is there extra credit available?",bn:"অতিরিক্ত ক্রেডিটের কোনো সুযোগ আছে?"},
+    {en:"Thank you so much for your help.",bn:"আপনার সাহায্যের জন্য অনেক ধন্যবাদ।"},
+    {en:"I will visit during your office hours.",bn:"আমি আপনার অফিস আওয়ারে আসব।"},
+  ]},
+  {id:'classroom',title:'In the Classroom',emoji:'📖',bengali:'ক্লাসরুমে',phrases:[
+    {en:"Could you speak more slowly, please?",bn:"আপনি কি একটু ধীরে ধীরে বলবেন?"},
+    {en:"Could you repeat that, please?",bn:"আপনি কি সেটা আবার বলবেন?"},
+    {en:"I didn't catch that. Could you say it again?",bn:"আমি শুনতে পাইনি। আবার বলবেন?"},
+    {en:"How do you spell that?",bn:"এটার বানান কী?"},
+    {en:"Is this going to be on the test?",bn:"এটা কি পরীক্ষায় আসবে?"},
+    {en:"May I ask a question?",bn:"আমি কি একটা প্রশ্ন করতে পারি?"},
+    {en:"I'm not sure I understand the instructions.",bn:"আমি নিশ্চিত নই যে আমি নির্দেশনাটি বুঝেছি।"},
+    {en:"Can I record this lecture?",bn:"আমি কি এই লেকচারটি রেকর্ড করতে পারি?"},
+  ]},
+  {id:'classmates',title:'Making Friends',emoji:'🤝',bengali:'বন্ধু তৈরি করা',phrases:[
+    {en:"Hi! I'm new here. What's your name?",bn:"হ্যালো! আমি এখানে নতুন। আপনার নাম কী?"},
+    {en:"What's your major?",bn:"আপনি কী বিষয়ে পড়ছেন?"},
+    {en:"Do you want to study together sometime?",bn:"কোনোদিন একসাথে পড়তে চান?"},
+    {en:"Do you understand what the professor said?",bn:"অধ্যাপক কী বললেন আপনি কি বুঝেছেন?"},
+    {en:"Where are you from originally?",bn:"আপনি মূলত কোথা থেকে এসেছেন?"},
+    {en:"Want to grab lunch together?",bn:"একসাথে লাঞ্চ করতে চান?"},
+    {en:"Can I sit here?",bn:"আমি কি এখানে বসতে পারি?"},
+    {en:"It was nice talking to you!",bn:"আপনার সাথে কথা বলে ভালো লাগলো!"},
+  ]},
 ];
 const ALL=LESSONS.flatMap(l=>l.phrases);
-const SYSTEM=`You are Nova, a warm bilingual English tutor for a Bengali-speaking woman at NOVA Community College, Northern Virginia. Always respond in BOTH languages:\n🇧🇩 [Bengali]\n🇺🇸 [English]\nBe encouraging, correct gently, give practical American life examples.`;
-const QUICK=['How do I talk to my professor?','Help me practice ordering food',"What does 'hang tight' mean?",'Help me with job interview English'];
+const SYSTEM=`You are Nova, a warm and patient bilingual English tutor. Your student is a Bengali-speaking woman from Bangladesh who is currently studying at NOVA Community College in Northern Virginia. She understands basic English when spoken slowly and can read English, but she freezes up when she has to speak to Americans — especially professors, advisors, and classmates.
+
+Her three biggest challenges are:
+1. Talking to professors and academic advisors
+2. Understanding lectures
+3. Making small talk and friends with classmates
+
+Always respond in BOTH languages:
+🇧🇩 [Bengali response — warm, encouraging]
+🇺🇸 [English response — clear, slow, practical]
+
+When doing roleplay, stay in character as the person she's practicing with (professor, classmate, etc.). Give her real example sentences she can memorize and use tomorrow. Correct grammar gently. Never make her feel embarrassed. Celebrate small wins enthusiastically.`;
+
+const QUICK=[
+  '🎭 Roleplay: Talk to my professor',
+  '🎭 Roleplay: Meet a new classmate',
+  '🎭 Roleplay: Ask about an assignment',
+  "What do I say when I don't understand?",
+];
 
 // ── WORD OF THE DAY ───────────────────────────────────────────────
 const wotd=ALL[Math.floor(Date.now()/86400000)%ALL.length];
 document.getElementById('wotd-en').textContent=wotd.en;
 document.getElementById('wotd-bn').textContent=wotd.bn;
+
+// ── FREEZE PHRASES ────────────────────────────────────────────────
+const FREEZE=[
+  {en:"Sorry, could you say that again more slowly?", bn:"দুঃখিত, একটু ধীরে ধীরে বলবেন?"},
+  {en:"I'm sorry, I don't quite understand.", bn:"মাফ করবেন, আমি ঠিক বুঝতে পারিনি।"},
+  {en:"Could you write that down for me?", bn:"আপনি কি এটা লিখে দিতে পারবেন?"},
+  {en:"Give me a moment, please.", bn:"একটু সময় দিন, দয়া করে।"},
+  {en:"I need to think about that.", bn:"আমাকে একটু ভাবতে হবে।"},
+];
+const fl=document.getElementById('freeze-list');
+FREEZE.forEach(f=>{
+  const d=document.createElement('div');
+  d.style.cssText='display:flex;justify-content:space-between;align-items:center;gap:8px;background:rgba(255,255,255,.05);border-radius:10px;padding:8px 12px;cursor:pointer;';
+  d.innerHTML=`<div><div style="font-size:14px;font-weight:600">${f.en}</div><div style="font-size:12px;color:var(--teal);margin-top:2px">${f.bn}</div></div><button onclick="event.stopPropagation();speakText('${f.en.replace(/'/g,"\\'")}');this.textContent='🔊';setTimeout(()=>this.textContent='▶',1500)" style="background:rgba(249,168,38,.2);border:none;border-radius:8px;padding:6px 10px;color:var(--gold);cursor:pointer;font-size:13px;flex-shrink:0">▶</button>`;
+  fl.appendChild(d);
+});
 
 // ── GLOBAL STREAK ─────────────────────────────────────────────────
 let gStreak=parseInt(localStorage.getItem('novaStreak')||'0');
